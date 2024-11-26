@@ -1,14 +1,10 @@
-import { Metadata } from "next"
+"use client"
+
 import Link from "next/link"
 
 import { cn } from "@/lib/utils"
 
 import { UserSigninForm } from "../components/signin-form"
-
-export const metadata: Metadata = {
-  title: "Authentication",
-  description: "Authentication forms built using the components.",
-}
 
 export default function SigninPage() {
   return (
