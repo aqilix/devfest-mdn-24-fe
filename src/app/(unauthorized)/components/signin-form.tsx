@@ -23,20 +23,15 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
 import { useLazyGetMeQuery } from "@/services/api/modules/users"
-import { AuthPostLoginReq } from "@/services/api/modules/auth/types"
 import { useLazyPostLoginQuery } from "@/services/api/modules/auth"
+import { SigninFormSchema } from "@/lib/form-definitions"
 import { changeUser } from "@/redux/user"
-
-const formSchema: z.ZodType<AuthPostLoginReq> = z.object({
-  username: z.string().email(),
-  password: z.string().min(6).max(50),
-})
 
 type UserAuthFormProps = React.HTMLAttributes<HTMLDivElement>
 
 export function UserSigninForm({ className, ...props }: Readonly<UserAuthFormProps>) {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof SigninFormSchema>>({
+    resolver: zodResolver(SigninFormSchema),
     defaultValues: {
       username: '',
       password: '',
@@ -54,7 +49,7 @@ export function UserSigninForm({ className, ...props }: Readonly<UserAuthFormPro
   const [postLogin, { isLoading: loginIsLoading }] = useLazyPostLoginQuery()
   const [getMe, { isLoading: meIsLoading }] = useLazyGetMeQuery()
 
-  const onSubmit = useCallback((req: z.infer<typeof formSchema>) => {
+  const onSubmit = useCallback((req: z.infer<typeof SigninFormSchema>) => {
     postLogin(req)
       .unwrap()
       .then((res) => {
