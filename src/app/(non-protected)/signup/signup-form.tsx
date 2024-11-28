@@ -1,13 +1,13 @@
 "use client"
 
 import * as React from "react"
+import { redirect } from "next/navigation"
 import { Github, Loader } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { redirect } from "next/navigation"
 
 type UserAuthFormProps = React.HTMLAttributes<HTMLDivElement>
 

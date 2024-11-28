@@ -1,5 +1,6 @@
 "use client"
 
+import { useCallback } from "react"
 import {
   BadgeCheck,
   Bell,
@@ -29,6 +30,10 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import { useSession } from "@/hooks/use-session"
+import { defaultSession } from "@/lib/session-constants"
+import { usePostLogoutMutation } from "@/services/api/modules/auth"
+import { useRouter } from "next/navigation"
 
 export function NavUser({
   user,
@@ -39,7 +44,22 @@ export function NavUser({
     avatar: string
   }
 }>) {
+  const router = useRouter()
+
   const { isMobile } = useSidebar()
+
+  const { signout: sessionSignout } = useSession();
+
+  const [postLogout] = usePostLogoutMutation()
+
+  const handleSignout = useCallback(async () => {
+    await postLogout(null).unwrap()
+    sessionSignout(null, {
+      optimisticData: defaultSession,
+    });
+
+    router.replace('/signin')
+  }, [postLogout, router, sessionSignout])
 
   return (
     <SidebarMenu>
@@ -102,7 +122,10 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={(e) => {
+              e.preventDefault()
+              handleSignout()
+            }}>
               <LogOut />
               Log out
             </DropdownMenuItem>

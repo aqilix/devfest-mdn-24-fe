@@ -53,8 +53,9 @@ const axiosBaseQuery = ({ baseUrl }: { baseUrl: string } = { baseUrl: '' }): Bas
       clearTimeout(timeoutEvent)
 
       // return the result data
-      return result
+      // return result
 
+      return { data: result?.data }
     // Got Exception!
     } catch (axiosError) {
       const error = JSON.parse(JSON.stringify(axiosError as AxiosError))

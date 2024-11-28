@@ -19,12 +19,13 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { cn } from "@/lib/utils"
+import { SigninFormSchema } from "@/lib/form-definitions"
+import { useSession } from "@/hooks/use-session"
+import { useToast } from "@/hooks/use-toast"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { useToast } from "@/hooks/use-toast"
 import { useLazyGetMeQuery } from "@/services/api/modules/users"
-import { useLazyPostLoginQuery } from "@/services/api/modules/auth"
-import { SigninFormSchema } from "@/lib/form-definitions"
+import { usePostLoginMutation } from "@/services/api/modules/auth"
 import { changeUser } from "@/redux/user"
 
 type UserAuthFormProps = React.HTMLAttributes<HTMLDivElement>
@@ -46,40 +47,44 @@ export function UserSigninForm({ className, ...props }: Readonly<UserAuthFormPro
 
   const { toast } = useToast()
 
-  const [postLogin, { isLoading: loginIsLoading }] = useLazyPostLoginQuery()
+  const { signin: sessionSignin } = useSession();
+
+  const [postLogin, { isLoading: loginIsLoading }] = usePostLoginMutation()
   const [getMe, { isLoading: meIsLoading }] = useLazyGetMeQuery()
 
-  const onSubmit = useCallback((req: z.infer<typeof SigninFormSchema>) => {
+  const onSubmit = useCallback(async (req: z.infer<typeof SigninFormSchema>) => {
     postLogin(req)
       .unwrap()
-      .then((res) => {
-        if (res.access_token) {
+      .then(async (loginRes) => {
+        if (loginRes?.access_token) {
           dispatch(changeUser({
-            accessToken: res.access_token,
-            tokenType: res.token_type
+            accessToken: loginRes?.access_token,
+            tokenType: loginRes?.token_type
           }))
-          getMe(null).unwrap()
-            .then((res) => {
-              if (res.is_active) {
-                router.replace("/playground")
-              } else {
-                toast({
-                  variant: "destructive",
-                  title: "Uh oh! The user is not active.",
-                  description: "Please call your administrator.",
-                })
-              }
-            })
-            .catch((err) => {
+        } else {
+          return Promise.reject(new Error('Something happen. Failed to sign in.'))
+        }
+        return Promise.resolve(loginRes)
+      })
+      .then(async () => {
+        return getMe(null).unwrap()
+          .then((meRes) => {
+            if (meRes.is_active) {
+              sessionSignin(meRes.email, {
+                optimisticData: {
+                  isLoggedIn: true,
+                  username: meRes.email,
+                },
+              });
+              router.replace("/playground")
+            } else {
               toast({
                 variant: "destructive",
-                title: "Uh oh! Something went wrong.",
-                description: err?.message || "There was a problem with your request.",
+                title: "Uh oh! The user is not active.",
+                description: "Please call your administrator.",
               })
-            })
-        } else {
-          // alert('Login failed 2')
-        }
+            }
+          })
       })
       .catch((err) => {
         // alert(err?.message || 'Login failed 3')
@@ -89,7 +94,7 @@ export function UserSigninForm({ className, ...props }: Readonly<UserAuthFormPro
           description: err?.message || "There was a problem with your request.",
         })
       })
-  }, [dispatch, getMe, postLogin, router, toast])
+  }, [dispatch, getMe, postLogin, router, sessionSignin, toast])
 
   return (
     <div className={cn("grid gap-6", className)} {...props}>
@@ -152,7 +157,7 @@ export function UserSigninForm({ className, ...props }: Readonly<UserAuthFormPro
                 Forgot your password?
               </Link>
             </div>
-            <Button onClick={() => {
+            {/* <Button onClick={() => {
               toast({
                 variant: "destructive",
                 title: "Uh oh! Something went wrong.",
@@ -160,7 +165,7 @@ export function UserSigninForm({ className, ...props }: Readonly<UserAuthFormPro
               })
             }} variant="outline" className="w-full" type="button">
               Login with Google
-            </Button>
+            </Button> */}
           </div>
         </form>
       </Form>

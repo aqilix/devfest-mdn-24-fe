@@ -4,12 +4,12 @@ import { AxiosRequestConfig } from 'axios'
 //   requestOptions?: Omit<RequestOptions, 'url' | 'method'>
 // }
 
-// export type ApiResponse<T = Record<string, unknown>> = {
-//   success: boolean
-//   data: T | null
-//   paging: ApiResponsePaging | null
-//   errors: ApiResponseError | null
-// }
+export type ApiResponse<T = Record<string, unknown>> = {
+  success: boolean
+  data?: T | null
+  // paging: ApiResponsePaging | null
+  errors?: ApiResponseError | null
+}
 
 // export type ApiResponseError = {
 //   code: number

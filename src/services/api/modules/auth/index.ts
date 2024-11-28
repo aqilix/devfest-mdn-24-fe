@@ -15,7 +15,7 @@ export const authApi = api.injectEndpoints({
         data,
       }),
     }),
-    postLogin: build.query<AuthPostLoginRes, AuthPostLoginReq>({
+    postLogin: build.mutation<AuthPostLoginRes, AuthPostLoginReq>({
       query: (data) => ({
         url: '/auth/jwt/login',
         method: 'POST',
@@ -25,7 +25,7 @@ export const authApi = api.injectEndpoints({
         data,
       }),
     }),
-    postLogout: build.query<AuthPostLogoutRes, AuthPostLogoutReq>({
+    postLogout: build.mutation<AuthPostLogoutRes, AuthPostLogoutReq>({
       query: (data) => ({
         url: '/auth/jwt/logout',
         method: 'POST',
@@ -37,6 +37,7 @@ export const authApi = api.injectEndpoints({
 })
 
 export const {
-  useLazyPostLoginQuery,
   usePostRegisterMutation,
+  usePostLoginMutation,
+  usePostLogoutMutation,
 } = authApi
