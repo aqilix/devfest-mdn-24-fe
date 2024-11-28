@@ -2,13 +2,13 @@ import { AxiosError, AxiosRequestConfig } from 'axios'
 import { BaseQueryFn } from '@reduxjs/toolkit/query/react'
 
 import { RootState } from '@/redux/store'
-import { getSubset } from '@/utils/functions/object'
+import { formatAPIResponseErrorArrayToMultilineString, getSubset } from '@/utils/functions/object'
 import { toSentenceCase } from '@/utils/functions/string'
 
 // import { AuthPostLoginRes } from '../modules/auth/types'
 
 import axiosClient from './axiosClient'
-import { RequestOptions } from '../types'
+import { ApiResponseError, RequestOptions } from '../types'
 
 // async function refreshAccessToken(baseURL: string, currRefreshToken: string) {
 //   return axios.post<AuthPostLoginRes>(`${baseURL}/auth/jwt/login`, { refresh_token: currRefreshToken })
@@ -22,7 +22,7 @@ const axiosBaseQuery = ({ baseUrl }: { baseUrl: string } = { baseUrl: '' }): Bas
       url, method, data, params, headers, timeout, signal,
     } = requestOpts
 
-    const { accessToken, tokenType } = (getState?.() as RootState)?.user
+    const { accessToken, tokenType } = ((getState?.() as RootState)?.user ?? {})
 
     let controller: AbortController | undefined
     if (!signal) controller = new AbortController()
@@ -58,6 +58,18 @@ const axiosBaseQuery = ({ baseUrl }: { baseUrl: string } = { baseUrl: '' }): Bas
     // Got Exception!
     } catch (axiosError) {
       const error = JSON.parse(JSON.stringify(axiosError as AxiosError))
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const errorData: ApiResponseError = error?.data
+      let errorMessage = ''
+
+      if (typeof errorData?.detail === 'string') {
+        errorMessage = errorData?.detail
+      } else if (Array.isArray(errorData?.detail)) {
+        errorMessage = formatAPIResponseErrorArrayToMultilineString(errorData?.detail)
+      } else if (typeof errorData?.detail === 'object') {
+        errorMessage = JSON.stringify(errorData?.detail)
+      }
 
       // Trigger Refresh Token
       if (error.status === 401 && !config?._retry) {
@@ -98,7 +110,11 @@ const axiosBaseQuery = ({ baseUrl }: { baseUrl: string } = { baseUrl: '' }): Bas
       }
 
       // return Error
-      return { error: getSubset(error, ['status', 'data']) }
+      return { error: { 
+        message: errorMessage,
+        ...getSubset(error, ['status', 'statusText', 'data']) }
+      }
+      // return { error: getSubset(error, ['status', 'data']) }
     }
   }
 )
