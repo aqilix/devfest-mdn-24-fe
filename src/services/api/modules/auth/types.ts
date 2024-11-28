@@ -18,8 +18,8 @@ export type AuthPostRegisterRes = {
 export type AuthPostLoginReq = {
   username: string
   password: string
-  grant_type: string
-  client_secret: string
+  grant_type?: string
+  client_secret?: string
   client_id?: string
   scope?: string
 }

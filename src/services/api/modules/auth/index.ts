@@ -19,6 +19,9 @@ export const authApi = api.injectEndpoints({
       query: (data) => ({
         url: '/auth/jwt/login',
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
         data,
       }),
     }),
