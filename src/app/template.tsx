@@ -6,13 +6,13 @@ import { authenticatedRoutePathUrl } from "@/services/api/modules/authenticated-
 
 export default async function RootTemplate({ children }: { children: React.ReactNode }) {
 
-  const response = await fetch(`${process.env.API_URL}${authenticatedRoutePathUrl}`)
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${authenticatedRoutePathUrl}`)
   const authenticatedRouteResult = await response.json()
 
   const route = await pathname(); // /hello
-  if (typeof authenticatedRouteResult?.message !== "string" && route !=='/signin') {
+  if (typeof authenticatedRouteResult?.message !== "string" && route !== '/signin') {
     redirect("/signin")
-  } else if (typeof authenticatedRouteResult?.message == "string" && route ==='/signin') {
+  } else if (typeof authenticatedRouteResult?.message == "string" && route === '/signin') {
     redirect("/playground")
   }
 
