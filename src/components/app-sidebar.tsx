@@ -5,7 +5,6 @@ import {
   BookOpen,
   Bot,
   Frame,
-  GalleryVerticalEnd,
   Settings2,
 } from "lucide-react"
 
@@ -18,10 +17,15 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
+import DevFestLogo from "@/../public/dev-fest-logo.png"
+import Image from "next/image"
+
 import { NavMenu } from "./nav-menu"
+import { useAppSelector } from "@/redux/hooks"
+import { formatEmailToName } from "@/utils/functions/object"
 
 // This is sample data.
-const data = {
+const initData = {
   user: {
     name: "Dolly Aswin",
     email: "info@gmail.com",
@@ -29,9 +33,9 @@ const data = {
   },
   teams: [
     {
-      name: "Aqilix Inc",
-      logo: GalleryVerticalEnd,
-      plan: "Enterprise",
+      name: "DevFest Medan 2024",
+      logo: <Image src={DevFestLogo} alt="DevFest 2024" width={50} height={50} />,
+      plan: "Google for Developers",
     },
   ],
   menu: [
@@ -109,6 +113,17 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const me = useAppSelector((state) => state.user.me)
+
+  const data = React.useMemo(() => ({
+    ...initData,
+    user: {
+      name: formatEmailToName(me?.email ?? "Anonymous"),
+      email: me?.email ?? "",
+      avatar: '',
+    },
+  }), [me?.email])
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
