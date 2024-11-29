@@ -7,6 +7,7 @@ import {
   Frame,
   Settings2,
 } from "lucide-react"
+import Image from "next/image"
 
 import { NavUser } from "@/components/nav-user"
 import { TeamSwitcher } from "@/components/team-switcher"
@@ -18,14 +19,11 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 import DevFestLogo from "@/../public/dev-fest-logo.png"
-import Image from "next/image"
 
 import { NavMenu } from "./nav-menu"
-import { useAppSelector } from "@/redux/hooks"
-import { formatEmailToName } from "@/utils/functions/object"
 
 // This is sample data.
-const initData = {
+const data = {
   user: {
     name: "Dolly Aswin",
     email: "info@gmail.com",
@@ -113,16 +111,6 @@ const initData = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const me = useAppSelector((state) => state.user.me)
-
-  const data = React.useMemo(() => ({
-    ...initData,
-    user: {
-      name: formatEmailToName(me?.email ?? "Anonymous"),
-      email: me?.email ?? "",
-      avatar: '',
-    },
-  }), [me?.email])
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -133,7 +121,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMenu items={data.menu} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

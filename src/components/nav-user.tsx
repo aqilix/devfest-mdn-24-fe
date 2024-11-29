@@ -26,17 +26,18 @@ import { useSession } from "@/hooks/use-session"
 import { defaultSession } from "@/lib/session-constants"
 import { usePostLogoutMutation } from "@/services/api/modules/auth"
 import { useRouter } from "next/navigation"
-import { getInitials } from "@/utils/functions/object"
+import { formatEmailToName, getInitials } from "@/utils/functions/object"
+import { useAppSelector } from "@/redux/hooks"
 
-export function NavUser({
-  user,
-}: Readonly<{
-  user: {
-    name: string
-    email: string
-    avatar: string
-  }
-}>) {
+export function NavUser() {
+
+  const me = useAppSelector((state) => state.user.me)
+  const user = useMemo(() => ({
+    name: formatEmailToName(me?.email ?? "Anonymous"),
+    email: me?.email ?? "",
+    avatar: '',
+  }), [me?.email])
+
   const router = useRouter()
 
   const { isMobile } = useSidebar()
@@ -48,7 +49,11 @@ export function NavUser({
   const avatarFallback = useMemo(() => getInitials(user.name), [user.name])
 
   const handleSignout = useCallback(async () => {
-    await postLogout(null).unwrap()
+    try {
+      await postLogout(null).unwrap()
+    } catch (error) {
+      console.error(error)
+    }
     sessionSignout(null, {
       optimisticData: defaultSession,
     });
