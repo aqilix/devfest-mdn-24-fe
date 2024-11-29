@@ -101,6 +101,7 @@ export function UserSignUpForm({ className, ...props }: Readonly<UserAuthFormPro
         return getMe(null).unwrap()
           .then((meRes) => {
             if (meRes.is_active) {
+              dispatch(changeUser({ me: meRes }))
               sessionSignin(meRes.email, {
                 optimisticData: {
                   isLoggedIn: true,
