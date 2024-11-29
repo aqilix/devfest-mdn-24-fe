@@ -12,9 +12,9 @@ import Link from "next/link"
 
 import {
   Form,
-  FormField,
   FormItem,
   FormLabel,
+  FormField,
   FormControl,
   FormMessage,
 } from "@/components/ui/form"
@@ -112,8 +112,8 @@ export function UserSigninForm({ className, ...props }: Readonly<UserAuthFormPro
                     <FormControl>
                       <Input
                         id="username"
-                        type="username"
-                        placeholder="m@example.com"
+                        type="email"
+                        placeholder="name@example.com"
                         required
                         autoComplete="off"
                         {...field}
@@ -138,6 +138,7 @@ export function UserSigninForm({ className, ...props }: Readonly<UserAuthFormPro
                         type="password"
                         required
                         autoComplete="off"
+                        placeholder="psst.. keep it secret!"
                         {...field}
                       />
                     </FormControl>
